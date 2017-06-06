@@ -1,15 +1,11 @@
 //Globals
-var userId = localStorage.getItem("userId");
-var messages = localStorage.getItem("messages");
+var userId = 4; //localStorage.getItem("userId");
 
 $(document).ready(function () {
-    document.addEventListener("deviceready", function () {
-        //localStorage.setItem("userId", '');
+
+    document.addEventListener("deviceready", function () {        
         forceLogin();
     });
-
-    messages = localStorage.getItem("messages");
-    $('#messages').text(messages);
 
     var myDate = new Date();
     myDate.setDate(myDate.getDate() - 1);
@@ -30,8 +26,8 @@ $(document).ready(function () {
 
 function forceLogin() {
     //console.log("forceLogin " + userId);
-    console.log("userId: " + userId);
-    location.href = (userId !== undefined && userId !== '' && userId !== null) ? "#Locaties" : "#loginPage";
+
+    location.href = "#Locaties"; //(userId !== undefined && userId !== '' && userId !== null) ? "#Locaties" : "#loginPage";
     if (userId !== undefined && userId !== '' && userId !== null)
     {
         setObjectsMenu();
@@ -40,14 +36,8 @@ function forceLogin() {
 }
 
 function getUserId() {
-    var username = $('#username').val();
-    var password = $('#password').val();
-
-    var tempMessages = "Getting user Id with name: " + username + " and password " + password;
-    messages = messages + tempMessages;
-
-    localStorage.setItem("messages", messages);
-    $('#messages').text(messages);
+    var username = "test"; //$('#username').val();
+    var password = "test123"; //$('#password').val();
 
     if (username !== undefined && username !== '' && password !== undefined && password !== '')
     {
@@ -58,15 +48,15 @@ function getUserId() {
                     console.log(receivedUserId);
                     if ($.isNumeric(receivedUserId) === true)
                     {
-                        localStorage.setItem("messages", messages + " user found: " + receivedUserId);
-                        //console.log("getUserId " + receivedUserId);
-                        //window.localStorage["userId"] = ;
                         userId = receivedUserId;
                         localStorage.setItem("userId", receivedUserId);
                         forceLogin();
                     } else {
-                        localStorage.setItem("messages", messages + " no user found ");
+
                     }
+                })
+                .fail(function(){
+                    console.log("Error when connecting host");
                 });
     } else {
         //console.log('invalid stuff');
