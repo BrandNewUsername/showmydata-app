@@ -1,11 +1,15 @@
 //Globals
 var userId = window.localStorage["userId"];
+var messages = window.localStorage["messages"];
 
 $(document).ready(function () {
     document.addEventListener("deviceready", function () {
         //localStorage.setItem("userId", '');
         forceLogin();
     });
+
+    messages = window.localStorage["messages"];
+    $('#messages').text(messages);
 
     var myDate = new Date();
     myDate.setDate(myDate.getDate() - 1);
@@ -35,7 +39,13 @@ function forceLogin() {
 function getUserId() {
     var username = $('#username').val();
     var password = $('#password').val();
-
+    
+    var tempMessages = "Getting user Id with name: " + username + " and password " + password;
+    messages = messages + tempMessages;
+    
+    localStorage.setItem("messages", messages);
+    $('#messages').text(messages);
+    
     if (username !== undefined && username !== '' && password !== undefined && password !== '')
     {
         $.post('http://data.showmydata.nl/logindata', {name: username, password: password})
@@ -44,13 +54,14 @@ function getUserId() {
                     var receivedUserId = data[0].id;
                     if ($.isNumeric(receivedUserId) === true)
                     {
+                        localStorage.setItem("messages", messages + " user found: " + receivedUserId);
                         //console.log("getUserId " + receivedUserId);
                         //window.localStorage["userId"] = ;
                         userId = receivedUserId;
                         localStorage.setItem("userId", receivedUserId);
                         forceLogin();
                     } else {
-                        //console.log("No Valid UserId Found");
+                        localStorage.setItem("messages", messages + " no user found ");
                     }
                 });
     } else {
