@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="utf-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="msapplication-tap-highlight" content="no" />
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
+
+        <link rel="stylesheet" type="text/css" href="css/jquery.mobile.css" />
+        <link rel="stylesheet" type="text/css" href="css/jquery.mobile.theme.css" />
+        <link rel="stylesheet" type="text/css" href="css/jqwidgets/jqx.base.css" />        
+        <link rel="stylesheet" type="text/css" href="css/app.css" />
+        <title>ShowMyData - Inzicht in uw sensor data</title>
+    </head>
+
+    <body data-theme="b">
+        <div class="app">
+
+            <!-- Login -->
+            <div id="loginPage" data-role="page">
+
+                <div data-role="header">
+                    <h1>Auth</h1>
+                </div>
+
+                <div data-role="content"> 
+
+                    <form id="loginForm">
+                        <div data-role="fieldcontain" class="ui-hide-label">
+                            <label for="username">Username:</label>
+                            <input type="text" name="username" id="username" value="" placeholder="Username" />
+                        </div>
+
+                        <div data-role="fieldcontain" class="ui-hide-label">
+                            <label for="password">Password:</label>
+                            <input type="password" name="password" id="password" value="" placeholder="Password" />
+                        </div>
+
+                        <button id="submitButton" onClick="getUserId();">Login</button>
+                    </form>
+
+                </div>
+            </div>
+            <!-- //Login -->
+
+            <!-- Data -->
+            <div data-role="page" id="Locaties" class="ui-page ui-page-theme-b">
+                <div data-role="header" class="ui-header ui-bar-b" data-theme="b">
+                    <div data-role="navbar" data-iconpos="left" data-theme="b">
+                        <ul data-theme="b">
+                            <li><a href="#Locaties" class="ui-btn-active" data-icon="grid">Locaties</a></li>
+                            <!--
+                            <li><a href="#Locaties" class="ui-btn" data-icon="location">Locaties</a></li>
+                            -->
+                            <li><a href="#Profiel" class="ui-btn" data-icon="user">Profiel</a></li>
+                        </ul>
+                    </div>            
+                </div>
+                <br >
+                <div data-role="header" class="ui-header ui-bar-b" data-theme="b" >
+                    
+                    <div data-role="navbar" data-iconpos="left" data-theme="b">
+                        
+                        <div class="ui-grid-b" >
+                            <div class="ui-block-a" >
+                                Van: <input type="text" data-role="date" id="startdate" >
+                            </div>
+                            <div class="ui-block-b" >
+                                Tot: <input type="text" data-role="date" id="enddate" >
+                            </div>
+                            <div class="ui-block-c" >
+                                <form style="width: 100%; margin-top: 30px;">
+                                    <select name="objectId" id="objectId" onchange="showMyGraph('day');showMyGraph('hour');getMyObjectData();" style="width: 100%;">
+                                    </select>
+                                </form>                            
+                            </div>
+                        </div>
+
+                        <div class="ui-grid-b" >
+                            <div class="ui-block-a" >
+                                <button class="ui-btn" style="width: 100%" onClick="showDay();">Per dag</button>
+                            </div>
+                            <div class="ui-block-b" >
+                                <button class="ui-btn" style="width: 100%" onClick="showHour();">Per uur</button>
+                            </div>
+                            <div class="ui-block-c" >
+                                <button class="ui-btn" style="width: 100%" onClick="showObjectData();">Gegevens</button>
+                            </div>                            
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+
+                <div data-role="content" >
+                    <div id="dayContainer" class="device-mobile-tablet">
+                        <div id="dayChartContainer" class="device-mobile-tablet-container">
+                            <div id="chartContainer-days" style="width: 100%; height: 65vh;" ></div>
+                        </div>
+                    </div>
+                    <div id="hourContainer" class="device-mobile-tablet hidden">
+                        <div id="hourChartContainer" class="device-mobile-tablet-container">
+                            <div id="chartContainer-hours" style="width: 100%; height: 65vh;" ></div>
+                        </div>
+                    </div>
+                    <div id="objectData" class="hidden" >
+                        <table data-role="table" id="objects" data-mode="reflow" class="stroked-table ui-responsive">
+                            <thead>
+                                <tr>
+                                    <th>Naam</th>
+                                    <th>Adres</th>
+                                    <th>Postcode</th>
+                                    <th>Plaats</th>
+                                    <th>Beschrijving</th>
+                                    <th>Opmerkingen</th>
+                                    <th>#Locaties</th>
+                                    <th>#Sensors</th>
+                                </tr>
+                            </thead>
+                            <tbody id="objects-body">
+                            </tbody>
+                        </table>                    
+                    </div>
+                    <div data-role="footer" data-theme="b">
+                        <h3>ShowMyData &beta; 0.06.05</h3>
+                    </div>
+                </div>
+            </div>
+            <!-- //Data -->
+
+            <!-- Profiel -->
+            <div data-role="page" id="Profiel">
+                <div data-role="header" class="ui-header ui-bar-b" data-theme="b">             
+                    <div data-role="navbar" data-iconpos="left" data-theme="b">
+                        <ul data-theme="b">
+                            <li><a href="#Locaties" class="ui-btn" data-icon="grid">Locaties</a></li>
+                            <!--
+                            <li><a href="#Locaties" class="ui-btn" data-icon="location">Locaties</a></li>
+                            -->
+                            <li><a href="#Profiel" class="ui-btn-active" data-icon="user">Profiel</a></li>
+                        </ul>
+                    </div>            
+                </div>
+
+                <div data-role="content">
+                    <table data-role="table" data-mode="reflow" class="stroked-table ui-responsive">
+                        <thead>
+                            <tr >
+                                <th>Naam</th>
+                                <th>Adres</th>
+                                <th>Postcode</th>
+                                <th>Plaats</th>
+                                <th>Telefoon</th>
+                                <th>Email</th>
+                                <th>Website</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customer-data" >                                                      
+                        </tbody>
+                    </table>
+                </div>
+                <div style="position: relative; float: bottom; margin-right: 10px;" >
+                    <a href="#" class="ui-btn-right ui-corner-all ui-btn-icon-notext" id="sign-out" data-role="button" data-icon="power" onClick="removeUserSettings();
+                            false;" >Afmelden</a>            
+                </div>
+            </div>
+            <!-- //Profiel -->                 
+        </div>
+        <script type="text/javascript" src="js/jquery.js"></script>
+        <script type="text/javascript" src="js/jquery.mobile.js"></script>
+        <!--        <script type="text/javascript" src="cordova.js"></script> -->
+        <script type="text/javascript" src="js/app.js"></script>
+
+        <script type="text/javascript" src="js/jqwidgets/jqxcore.js"></script>
+        <script type="text/javascript" src="js/jqwidgets/jqxchart.core.js"></script>
+        <script type="text/javascript" src="js/jqwidgets/jqxdata.js"></script>        
+        <script type="text/javascript" src="js/jqwidgets/jqxdraw.js"></script>
+        <script src="js/jqwidgets/jqxtabs.js" type="text/javascript"></script>
+
+        <script type="text/javascript" src="js/jqwidgets/jqxdatetimeinput.js"></script>
+        <script type="text/javascript" src="js/jqwidgets/jqxcalendar.js"></script>
+        <script type="text/javascript" src="js/jqwidgets/jqxtooltip.js"></script>
+    </body>
+
+</html>
