@@ -1,6 +1,6 @@
 //Globals
-var userId = window.localStorage["userId"];
-var messages = window.localStorage["messages"];
+var userId = localStorage.getItem("userId");
+var messages = localStorage.getItem("messages");
 
 $(document).ready(function () {
     document.addEventListener("deviceready", function () {
@@ -8,7 +8,7 @@ $(document).ready(function () {
         forceLogin();
     });
 
-    messages = window.localStorage["messages"];
+    messages = localStorage.getItem("messages");
     $('#messages').text(messages);
 
     var myDate = new Date();
@@ -17,41 +17,45 @@ $(document).ready(function () {
     $("#startdate").jqxDateTimeInput({width: '120px', height: '20px'});
     $("#startdate").jqxDateTimeInput('setDate', myDate);
     $("#enddate").jqxDateTimeInput({width: '120px', height: '20px'});
-    
+
     $('#startdate').on('change', function (event) {
-         showMyGraph('day');
-         showMyGraph('hour');
-     });
-     $('#enddate').on('change', function (event) {
-         showMyGraph('day');
-         showMyGraph('hour');
-     });    
+        showMyGraph('day');
+        showMyGraph('hour');
+    });
+    $('#enddate').on('change', function (event) {
+        showMyGraph('day');
+        showMyGraph('hour');
+    });
 });
 
 function forceLogin() {
     //console.log("forceLogin " + userId);
+    console.log("userId: " + userId);
     location.href = (userId !== undefined && userId !== '' && userId !== null) ? "#Locaties" : "#loginPage";
-    setObjectsMenu();
-    getMyPersonalData();
-
+    if (userId !== undefined && userId !== '' && userId !== null)
+    {
+        setObjectsMenu();
+        getMyPersonalData();
+    }
 }
 
 function getUserId() {
     var username = $('#username').val();
     var password = $('#password').val();
-    
+
     var tempMessages = "Getting user Id with name: " + username + " and password " + password;
     messages = messages + tempMessages;
-    
+
     localStorage.setItem("messages", messages);
     $('#messages').text(messages);
-    
+
     if (username !== undefined && username !== '' && password !== undefined && password !== '')
     {
         $.post('http://data.showmydata.nl/logindata', {name: username, password: password})
                 .done(function (data) {
                     data = JSON.parse(data);
-                    var receivedUserId = data[0].id;
+                    var receivedUserId = data[0] !== undefined ? data[0].id : undefined;
+                    console.log(receivedUserId);
                     if ($.isNumeric(receivedUserId) === true)
                     {
                         localStorage.setItem("messages", messages + " user found: " + receivedUserId);
@@ -123,7 +127,7 @@ function setObjectsMenu() {
 
             showMyGraph('day'); //Once finished, render graph to prevent empty setting
             showMyGraph('hour'); //Once finished, render graph to prevent empty setting
-            getMyObjectData();            
+            getMyObjectData();
         }
         //error: //console.log('getMyObjectsData failure')
     });
@@ -162,7 +166,7 @@ function getMyObjectData() {
 
 function showMyGraph(time) {
     $('#chartContainer-' + time + 's').empty().html('<div style="margin-right: auto; margin-left: auto; width: 100%; text-align: center; color: white" >Data wordt geladen...</div><div style="margin-right: auto; margin-left: auto; width: 100%; text-align: center; "><img src="css/images/ajax-loader.gif" ></div>');
-    
+
     var time = (time !== '') ? time : 'day'; //Values: month / week / day / hour / minute
 
     // prepare chart data
@@ -203,39 +207,39 @@ function showMyGraph(time) {
                 }
 
                 $.each(response, function (key_new, val_new) {
-                        maxValue = val_new.max_value > maxValue ? val_new.max_value : maxValue;
-                        switch (time) {
-                            case 'minute':
-                                if(val_new.minute_only === val.minute_only){
-                                    //rawData[val.minute_only][val_new.object_name] = val_new.visitors_in;
-                                    rawData[val.minute_only]['name'] = val_new.object_name;
-                                    rawData[val.minute_only]['date'] = val_new.minute_only;
-                                    rawData[val.minute_only]['in'] = val_new.visitors_in;
-                                    rawData[val.minute_only]['avg'] = val_new.avg_visitors_in;
-                                }
-                                break;
+                    maxValue = val_new.max_value > maxValue ? val_new.max_value : maxValue;
+                    switch (time) {
+                        case 'minute':
+                            if (val_new.minute_only === val.minute_only) {
+                                //rawData[val.minute_only][val_new.object_name] = val_new.visitors_in;
+                                rawData[val.minute_only]['name'] = val_new.object_name;
+                                rawData[val.minute_only]['date'] = val_new.minute_only;
+                                rawData[val.minute_only]['in'] = val_new.visitors_in;
+                                rawData[val.minute_only]['avg'] = val_new.avg_visitors_in;
+                            }
+                            break;
 
-                            case 'hour':
-                                if(val_new.hour_only === val.hour_only){
-                                    //rawData[val.hour_only][val_new.object_name] = val_new.visitors_in;
-                                    rawData[val.hour_only]['name'] = val_new.object_name;
-                                    rawData[val.hour_only]['date'] = val_new.hour_only;
-                                    rawData[val.hour_only]['in'] = val_new.visitors_in;
-                                    rawData[val.hour_only]['avg'] = val_new.avg_visitors_in;
-                                }
-                                break;
+                        case 'hour':
+                            if (val_new.hour_only === val.hour_only) {
+                                //rawData[val.hour_only][val_new.object_name] = val_new.visitors_in;
+                                rawData[val.hour_only]['name'] = val_new.object_name;
+                                rawData[val.hour_only]['date'] = val_new.hour_only;
+                                rawData[val.hour_only]['in'] = val_new.visitors_in;
+                                rawData[val.hour_only]['avg'] = val_new.avg_visitors_in;
+                            }
+                            break;
 
-                            case 'day':
-                            default:
-                                if (val_new.date_only === val.date_only) {
-                                    rawData[val.date_only]['name'] = val_new.object_name;
-                                    rawData[val.date_only]['date'] = val_new.date_only;
-                                    rawData[val.date_only]['in'] = val_new.visitors_in;
-                                    rawData[val.date_only]['avg'] = val_new.avg_visitors_in;
-                                }
-                                break;
+                        case 'day':
+                        default:
+                            if (val_new.date_only === val.date_only) {
+                                rawData[val.date_only]['name'] = val_new.object_name;
+                                rawData[val.date_only]['date'] = val_new.date_only;
+                                rawData[val.date_only]['in'] = val_new.visitors_in;
+                                rawData[val.date_only]['avg'] = val_new.avg_visitors_in;
+                            }
+                            break;
 
-                        }
+                    }
                 });
                 //Send data to objects div
 
@@ -250,7 +254,7 @@ function showMyGraph(time) {
                 $.each(value, function (key, val) {
                     obj[key] = val;
                     //console.log(obj[key] + ' --- ' + val)
-                    serieLabels[key] = key;                    
+                    serieLabels[key] = key;
                 });
                 sampleData.push(obj);
             });
@@ -271,10 +275,10 @@ function showMyGraph(time) {
 }
 
 function createGraph(sampleData, serieArray, time) {
-    
+
     var baseUnit = time;
     var dateFormat = (time === 'hour') ? 'HH:mm' : 'dd.MM';
-    
+
     // prepare jqxChart settings
     var settings = {
         title: "Bezoekers in " + sampleData[0].name,
@@ -319,7 +323,7 @@ function createGraph(sampleData, serieArray, time) {
                                     maxValue: sampleData[0].max,
                                     //unitInterval: 10,
                                     displayValueAxis: true
-                                    //description: 'Aantal bezoekers'
+                                            //description: 'Aantal bezoekers'
                                 },
                         series: [{dataField: 'in', displayText: 'Bezoekersaantal'}]
                     },
@@ -342,20 +346,20 @@ function createGraph(sampleData, serieArray, time) {
     $('#chartContainer-' + time + 's').empty().jqxChart(settings);
 }
 
-function showDay(){
-    $('#hourContainer').hide();    
+function showDay() {
+    $('#hourContainer').hide();
     $('#dayContainer').show();
     $('#objectData').hide();
 }
 
-function showHour(){
+function showHour() {
     $('#hourContainer').show();
     $('#dayContainer').hide();
     $('#objectData').hide();
 }
 
-function showObjectData(){
+function showObjectData() {
     $('#hourContainer').hide();
     $('#dayContainer').hide();
-    $('#objectData').show();    
+    $('#objectData').show();
 }
